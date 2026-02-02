@@ -1,7 +1,33 @@
+#' Causal mediation with time-varying mediators, hazard scale, and competing risks
+#'
+#' @description
+#' Implements the g-formula approach for mediation analysis with
+#' time-varying mediators and competing risks on the hazard scale.
+#'
+#' @param L List of models for time-varying covariates (can be NULL for none).
+#' @param M List of models for time-varying mediators.
+#' @param m Character vector of mediator variable names in time order.
+#' @param Y Outcome model object containing `call`, `gamma`, and `robvar.gamma`.
+#' @param treat Treatment variable name.
+#' @param control.value Control treatment value.
+#' @param treat.value Treatment value under intervention.
+#' @param data Data frame with all variables.
+#' @param time_points Character vector of time-point variable names.
+#' @param peryr Scaling constant for hazard (default 100000).
+#'
+#' @return A list with DE, IEM, IED, TE, and Q.
+#' @export
+#' @importFrom foreach foreach %dopar%
+#' @importFrom mvtnorm rmvnorm
+#' @importFrom stats model.frame model.matrix predict quantile rbinom
+#' @examples
+#' # Example usage requires fitted models and appropriate data.
+#' # See the package vignette for a full example.
+
 
 # Main function to conduct mediation analysis in presence of time-varying mediators, a survival outcome and competing risks in difference in hazards scale
 
-med_longitudinal=function(L=NULL, M, m, Y, treat='logcocr', control.value=a, treat.value=a_star, data, time_points, peryr=100000){
+cm_cr_gformula_hazard=function(L=NULL, M, m, Y, treat='logcocr', control.value=a, treat.value=a_star, data, time_points, peryr=100000){
   
   N=dim(data)[1]
   NL=length(L)
@@ -203,4 +229,5 @@ med_longitudinal=function(L=NULL, M, m, Y, treat='logcocr', control.value=a, tre
   res <- list(DE=DE_result, IEM=IEM_result, IED=IED_result, TE=TE_result, Q=Q)
   return(res)
 }
+
 

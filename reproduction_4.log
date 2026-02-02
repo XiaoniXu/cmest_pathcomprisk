@@ -1,0 +1,20 @@
+Loading package from ../cmcrhazard 
+Loading data...
+Running cm_cr_gformula_hazard...
+$DE
+[1] "209.34 (-233.71, 475.88)"
+
+$IEM
+[1] "-23.3 (-307.61, 319.14)"
+
+$IED
+[1] "0 (0, 0)"
+
+$TE
+[1] "126.04 (-25.26, 251.16)"
+
+$Q
+   50% 
+-18.49 
+
+Success!

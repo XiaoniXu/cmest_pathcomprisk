@@ -2,7 +2,9 @@
 title: "20260202_Progress_Report_XX"
 author: "Xiaoni Xu"
 date: "2026-02-02"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
