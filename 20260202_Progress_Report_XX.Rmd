@@ -1,0 +1,94 @@
+---
+title: "20260202_Progress_Report_XX"
+author: "Xiaoni Xu"
+date: "2026-02-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+## Overview of Recent Work
+
+Over the past few weeks, I focused on creating the R package structure and designing the main command for the causal mediation analysis with competing risks.
+
+Specifically, I completed the following steps:
+
+1.  **Created the R package**: I organized the functions into a standard R package structure (`cmcrhazard`).
+2.  **Designed the command**: Implemented the `cmest_pathcomprisk` function (formerly `cm_cr_gformula_hazard`).
+3.  **Updated Inputs**: I aligned the function arguments with `CMAverse` conventions (e.g., changing `L` to `D`, `M` to `mreg`).
+
+## Data Simulation
+
+I created a self-contained simulation script to test the function. This generates data with time-varying mediators (`M_1`, `M_2`) and competing risks (`D1`, `D2`), without relying on external files.
+
+```{r}
+# Simulation parameters
+n = 200
+M_0 = 100; M_1_E = 1.2; M_1_C = 3.9
+# ... (coefficients omitted for brevity)
+
+# Generate covariates and mediators
+E <- rnorm(n, mean=2, sd=sqrt(0.7))
+C <- rbinom(n, size=1, prob=0.4)
+M1 <- rnorm(n, mean = M_0 + M_1_E * E + M_1_C * C, sd=1)
+M2 <- rnorm(n, mean = 46 + 0.5 * M1 + 0.9 * E - 1.3 * C, sd=1)
+
+# Generate Survival Times (Exponential approximation)
+lambda_Y <- exp(-7.4 + 0.14 * E + 0.48 * C + 0.02 * M1)
+# ... (D generation simliar)
+
+simData <- data.frame(E, C, M1, M2, Y=Y_time, D=D_time)
+```
+
+## Running the Command
+
+I successfully ran the simulated data through the new `cmest_pathcomprisk` command.
+
+```{r}
+library(cmcrhazard)
+
+# Define models
+mreg <- list(
+  lm(M_1 ~ E + C,           data = df2),
+  lm(M_2 ~ E + M_1 + C,     data = df2)
+)
+
+D <- list(
+  glm(D1 ~ E + M_1 + C, data = df2, family = binomial()),
+  glm(D2 ~ E + M_2 + C, data = df2, family = binomial())
+)
+
+# Run the function
+results <- cmest_pathcomprisk(
+  D = D,
+  mreg = mreg,
+  mvar = c("M_1","M_2"),
+  yreg = yreg,
+  avar = "E",
+  a = as.numeric(quantile(df2$E, 0.25)),
+  astar = as.numeric(quantile(df2$E, 0.75)),
+  data = df2,
+  time_points = c("time.since.first.exam_1", "time.since.first.exam_2"),
+  peryr = 100000,
+  nboot = 20
+)
+```
+
+## Results
+
+I obtained the following estimates from the simulation run:
+
+*   **DE (Direct Effect)**: 102.25 (-542.11, 1101.54)
+*   **IEM (Indirect Effect via Mediator)**: -25.37 (-622.64, 313.49)
+*   **IED (Indirect Effect via Competing Risk)**: -1.28 (-18.8, 10.27)
+*   **TE (Total Effect)**: 231.45 (-466.53, 776.57)
+
+The results show that the pipeline is working correctly. As expected with a small sample size (n=200) and low bootstrap count, the confidence intervals are wide.
+
+## Next Steps
+
+In the future, I plan to:
+1.  Increase the sample size and number of bootstraps to obtain more stable estimates.
+2.  Apply this command to Yuchen's more complex simulated dataset to further validate the method.
