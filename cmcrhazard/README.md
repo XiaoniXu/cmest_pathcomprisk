@@ -1,0 +1,25 @@
+
+# cmcrhazard
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of cmcrhazard is to ...
+
+## Installation
+
+You can install the development version of cmcrhazard like so:
+
+``` r
+# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+``` r
+library(cmcrhazard)
+## basic example code
+```
+
