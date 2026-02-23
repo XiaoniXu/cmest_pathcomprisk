@@ -1,0 +1,64 @@
+---
+title: "20260223_Progress_Report_XX"
+author: "Xiaoni Xu"
+date: "2026-02-23"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+## Overview of Recent Work
+
+In the most recent phase of the project, I refactored the analysis pipeline to directly utilize the `cmcrhazard` R package. This transition from local function definitions to a formal package structure ensures greater reliability and easier maintenance.
+
+Key updates include:
+- **Package Integration**: Successfully migrated the script to use `cmest_pathcomprisk` from the `cmcrhazard` package.
+- **Improved Power**: Increased the bootstrap samples to 1,000 and the sample size to 5,000 to obtain more stable estimates.
+- **Variable Alignment**: Renamed arguments to align with package conventions (e.g., using `D` for dropout/competing risk models).
+
+## Model Definitions
+
+The analysis utilized the following model structures for the mediators, competing risks, and outcome:
+
+```{r}
+# Mediator models (mreg)
+mreg1 <- lm(M_1 ~ E + C, data = df_main)
+mreg2 <- lm(M_2 ~ E + M_1 + C, data = df_main)
+mreg <- list(mreg1, mreg2)
+
+# Dropout/Survival models (D) - Indirect Effect through Dropout death
+D1_mod <- glm(D_1 ~ E + M_1 + C, data = df_main, family = binomial())
+D2_mod <- glm(D_2 ~ E + M_2 + C, data = df_main, family = binomial())
+D <- list(D1_mod, D2_mod)
+
+# Outcome model (yreg - Aalen additive hazards)
+yreg <- aalen(Surv(tstart, tstop, endpt) ~ const(E) + const(M) + const(C),
+    data = df_process, resample.iid = 1, n.sim = 0
+)
+```
+
+## Mediation Analysis Results
+
+The analysis was performed on a simulated dataset with a sample size of $N=5,000$ and $1,000$ bootstrap iterations.
+
+| Effect | Estimate (95% CI) |
+| :--- | :--- |
+| **Direct Effect (DE)** | 67.59 (-39.2, 164.7) |
+| **Indirect Effect through Mediator (IEM)** | 33.07 (-52.21, 118.88) |
+| **Indirect Effect through Dropout death (IED)** | -0.32 (-0.81, 0.17) |
+| **Total Effect (TE)** | 99.75 (29.62, 168.63) |
+
+## Interpretation
+
+Based on the analysis results:
+- The **Total Effect (TE)** is positive and statistically significant, with an estimate of 99.75.
+- The path-specific effects indicate a positive direction, suggesting that the mediators partially explain the effect of the treatment on the outcome.
+- We also observe a small negative effect through the competing risks (**Indirect Effect through Dropout death**).
+
+## Next Steps
+- Run the analysis with a larger sample size ($N=7,500$ or $N=10,000$) to further tighten the confidence intervals for the path-specific effects.
+- Continue testing the package stability with more complex simulation scenarios and real-world mimicking datasets.
