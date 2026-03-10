@@ -4,9 +4,8 @@
 \alias{getvarnames}
 \title{Internal helper: get variable names from a model call}
 \usage{
-getvarnames(call)
+getvarnames(formula, data = NULL)
 }
 \description{
 Internal helper: get variable names from a model call
 }
-\keyword{internal}

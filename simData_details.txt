@@ -1,0 +1,33 @@
+Class of simData: data.table data.frame 
+Dimensions: 100000 10 
+Column Names:
+ [1] "id"            "E"             "C"             "M1"           
+ [5] "M2"            "D1"            "D2"            "nci"          
+ [9] "time_to_event" "eventHappened"
+
+Summary:
+       id               E          C               M1               M2        
+ Min.   :     1   Min.   :-1.612   0:59808   Min.   : 97.78   Min.   : 99.67  
+ 1st Qu.: 25001   1st Qu.: 1.431   1:40192   1st Qu.:103.83   1st Qu.:106.61  
+ Median : 50001   Median : 2.002             Median :105.43   Median :107.88  
+ Mean   : 50001   Mean   : 2.005             Mean   :105.73   Mean   :107.88  
+ 3rd Qu.: 75000   3rd Qu.: 2.578             3rd Qu.:107.70   3rd Qu.:109.15  
+ Max.   :100000   Max.   : 5.865             Max.   :114.17   Max.   :115.48  
+                                                              NA's   :9769    
+ D1        D2             nci          time_to_event   eventHappened    
+ 0:94234   0:90152   Min.   :0.00000   Min.   : 0.00   Min.   :0.00000  
+ 1: 5766   1: 9848   1st Qu.:0.00000   1st Qu.:20.00   1st Qu.:0.00000  
+                     Median :0.00000   Median :20.00   Median :0.00000  
+                     Mean   :0.09848   Mean   :17.46   Mean   :0.09472  
+                     3rd Qu.:0.00000   3rd Qu.:20.00   3rd Qu.:0.00000  
+                     Max.   :1.00000   Max.   :20.00   Max.   :1.00000  
+                                                                        
+
+Head:
+  id         E C       M1       M2 D1 D2 nci time_to_event eventHappened
+1  1 0.8759293 0 100.9753 103.9753  0  0   0        20.000             0
+2  2 2.5202148 1 109.8908 109.7168  0  0   0        20.000             0
+3  3 2.6700598 0 104.9579 110.0709  0  0   0        20.000             0
+4  4 0.8379692 1 107.0126 106.6717  0  0   0        20.000             0
+5  5 1.4023262 0 103.6527 106.5380  0  0   0         6.116             1
+6  6 1.7288711 0 105.0181 108.5056  0  0   0        20.000             0

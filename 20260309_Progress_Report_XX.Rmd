@@ -1,0 +1,75 @@
+---
+title: "Weekly Progress Report: Mediation Analysis & Package Validation"
+author: "Xiaoni Xu"
+date: "2026-03-09"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+## Overview of Recent Work
+
+In the most recent phase of the project, I focused on validating the newly developed `cmcrhazard` R package by comparing its results against the original mediation analysis script (`250422_SHS_gfor_single_exp.R`). This comparison led to a critical bug fix and the implementation of a new "Exact Match" mode in the package.
+
+Key updates include:
+- **Bug Fix**: Identified and resolved an ordering issue in the bootstrap loop where covariate-coefficient mismatching occurred due to duplicate IDs.
+- **New Feature: Exact Match Mode**: Implemented the `refit = TRUE` parameter in `cmest_pathcomprisk`, allowing for a full non-parametric bootstrap that matches the original script's logic.
+- **Model Validation**: Performed a head-to-head comparison of the original re-fitting method versus the package's default parametric approach.
+
+## Mode Comparison & Validation Results
+
+To ensure the package behaves as expected, I compared two different bootstrap philosophies using a subset of the SHS Mimick data ($N=500, B=20$).
+
+### 1. Parametric/Hybrid (Default)
+This mode fits models once and then draws from the parameter distributions (`rmvnorm`) in each iteration. It is significantly faster and computationally stable.
+
+### 2. Non-parametric (Exact Match)
+This mode re-fits all models (mediators, dropout, and outcome) on a new resampled dataset in every iteration. This matches the original script's logic and captures uncertainty in the model-fitting process itself.
+
+### Comparison Results (N=500, B=20)
+
+| Effect | Old Method (Re-fitting) | New Package (Parametric) |
+| :--- | :---: | :---: |
+| **Direct Effect (DE)** | 32.98 | -9.24 |
+| **Indirect Effect through Mediator (IEM)** | 13.79 | -4.44 |
+| **Indirect Effect through Dropout (IED)** | -0.36 | -0.16 |
+| **Total Effect (TE)** | 55.71 | 8.08 |
+
+*Note: The results for IED are now aligned in direction and magnitude following the ordering bug fix.*
+
+## Production Run Details
+
+A large-scale production run is currently underway using the following parameters:
+- **Sample Size ($N$)**: 7,500
+- **Bootstrap Samples ($B$)**: 1,000
+- **Mode**: Exact Match (`refit = TRUE`)
+- **Estimated Completion**: Several hours (running in-process)
+
+## Model Definitions (Refit Mode)
+
+The package now handles the re-fitting of these models automatically inside the bootstrap loop:
+
+```{r}
+# Example of the new 'refit' call in the package
+results <- cmest_pathcomprisk(
+    D = D_models, 
+    mreg = mreg_models, 
+    mvar = c("M1", "M2"), 
+    yreg = yreg_model, 
+    avar = "E", 
+    data = simData, 
+    nboot = 1000, 
+    refit = TRUE,                # Enable Exact Match
+    yreg_time = "time_to_event", # Time variable name
+    yreg_event = "eventHappened" # Event indicator name
+)
+```
+
+## Next Steps
+- Monitor and complete the $N=7,500$ production run.
+- Update the documentation for the `refit` parameter in the `cmcrhazard` package.
+- Prepare a final summary report once the large-scale results are available.

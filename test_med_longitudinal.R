@@ -97,13 +97,14 @@ results <- cmest_pathcomprisk(
     data = df_main,
     time_points = c("time.since.first.exam_1", "time.since.first.exam_2"),
     peryr = 100000,
-    nboot = 1000
+    nboot = 1000,
+    refit = TRUE,                # Enable Exact Match (Non-parametric Bootstrap)
+    yreg_time = "time_to_event", # Time-to-event variable
+    yreg_event = "eventHappened" # Event indicator variable
 )
 
-end_time <- Sys.time()
-
-cat("\n=== MEDIATION ANALYSIS RESULTS ===\n")
-cat("Time taken:", round(end_time - start_time, 2), "units\n")
+length_time <- Sys.time() - start_time
+cat("Time taken:", round(length_time, 2), "units\n")
 print(results)
 
 # Save results
