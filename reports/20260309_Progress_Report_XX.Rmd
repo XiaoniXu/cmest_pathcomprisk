@@ -11,14 +11,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
-## Overview of Recent Work
-
-In the most recent phase of the project, I focused on validating the newly developed `cmcrhazard` R package by comparing its results against the original mediation analysis script (`250422_SHS_gfor_single_exp.R`). This comparison led to a critical bug fix and the implementation of a new "Exact Match" mode in the package.
-
 Key updates include:
-- **Bug Fix**: Identified and resolved an ordering issue in the bootstrap loop where covariate-coefficient mismatching occurred due to duplicate IDs.
-- **New Feature: Exact Match Mode**: Implemented the `refit = TRUE` parameter in `cmest_pathcomprisk`, allowing for a full non-parametric bootstrap that matches the original script's logic.
-- **Model Validation**: Performed a head-to-head comparison of the original re-fitting method versus the package's default parametric approach.
+- _Bug Fix_: Identified and resolved an ordering issue in the bootstrap loop where covariate-coefficient mismatching occurred due to duplicate IDs.
+- _New Feature: Exact Match Mode_: Implemented the `refit = TRUE` parameter in `cmest_pathcomprisk`, allowing for a full non-parametric bootstrap that matches the original script's logic.
+- _Model Validation_: Performed a head-to-head comparison of the original re-fitting method versus the package's default parametric approach.
 
 ## Mode Comparison & Validation Results
 
@@ -34,20 +30,20 @@ This mode re-fits all models (mediators, dropout, and outcome) on a new resample
 
 | Effect | Old Method (Re-fitting) | New Package (Parametric) |
 | :--- | :---: | :---: |
-| **Direct Effect (DE)** | 32.98 | -9.24 |
-| **Indirect Effect through Mediator (IEM)** | 13.79 | -4.44 |
-| **Indirect Effect through Dropout (IED)** | -0.36 | -0.16 |
-| **Total Effect (TE)** | 55.71 | 8.08 |
+| Direct Effect (DE) | 32.98 | -9.24 |
+| Indirect Effect through Mediator (IEM) | 13.79 | -4.44 |
+| Indirect Effect through Dropout (IED) | -0.36 | -0.16 |
+| Total Effect (TE) | 55.71 | 8.08 |
 
 *Note: The results for IED are now aligned in direction and magnitude following the ordering bug fix.*
 
 ## Production Run Details
 
 A large-scale production run is currently underway using the following parameters:
-- **Sample Size ($N$)**: 7,500
-- **Bootstrap Samples ($B$)**: 1,000
-- **Mode**: Exact Match (`refit = TRUE`)
-- **Estimated Completion**: Several hours (running in-process)
+- Sample Size ($N$): 7,500
+- Bootstrap Samples ($B$): 1,000
+- Mode: Exact Match (`refit = TRUE`)
+- Estimated Completion: Several hours (running in-process)
 
 ## Model Definitions (Refit Mode)
 
