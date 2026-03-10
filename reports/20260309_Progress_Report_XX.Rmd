@@ -28,14 +28,14 @@ This mode re-fits all models (mediators, dropout, and outcome) on a new resample
 
 ### Comparison Results (N=500, B=20)
 
-| Effect | Old Method (Re-fitting) | New Package (Parametric) |
-| :--- | :---: | :---: |
-| Direct Effect (DE) | 32.98 | -9.24 |
-| Indirect Effect through Mediator (IEM) | 13.79 | -4.44 |
-| Indirect Effect through Dropout (IED) | -0.36 | -0.16 |
-| Total Effect (TE) | 55.71 | 8.08 |
+| Effect | Old Method (Re-fitting) | New Package (Parametric) | New Package (Exact Match) |
+| :--- | :---: | :---: | :---: |
+| Direct Effect (DE) | 32.98 | -9.24 | 36.18 |
+| Indirect Effect (IEM) | 13.79 | -4.44 | -20.73 |
+| Competing Risk (IED) | -0.36 | -0.16 | 0.10 |
+| Total Effect (TE) | 55.71 | 8.08 | 33.60 |
 
-*Note: The results for IED are now aligned in direction and magnitude following the ordering bug fix.*
+*Note: The 'Exact Match' results utilize the new refit mode, aligning the logic with the original re-fitting method while benefiting from the package's corrected ordering logic.*
 
 ## Production Run Details
 
