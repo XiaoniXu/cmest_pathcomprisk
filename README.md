@@ -3,7 +3,7 @@
 ## Overview
 This repository contains the development, implementation, and validation of a comprehensive statistical pipeline for **Causal Mediation Analysis** in complex settings featuring **longitudinal mediators** and **competing risks**. 
 
-It extends the state-of-the-art causal mediation framework by actively developing and validating the `cmcrhazard` R package—specifically the `cmest_pathcomprisk` command. This repository features robust methodologies to study complex aging-related health trajectories where patient outcomes track multi-timepoint physiological data and are constrained by dropouts or survival phenomena.
+It extends the causal mediation framework by actively developing and validating the `cmcrhazard` R package—specifically the `cmest_pathcomprisk` command. This repository features robust methodologies to study complex aging-related health trajectories where patient outcomes track multi-timepoint physiological data and are constrained by dropouts or survival phenomena.
 
 ## Key Features
 * **Time-Varying Mediation:** Accurately builds regression frameworks mapping continuous or time-varying variables across multiple measurement time points (e.g., baseline and follow-up mediators).
@@ -14,7 +14,7 @@ It extends the state-of-the-art causal mediation framework by actively developin
 ## Project Scope & Application
 The methodologies and models developed in this repository were extensively validated against large-scale simulated distributions ($N = 7,500$ subjects, 1,000 bootstrap iterations) that mimic the multi-dimensional demographic and clinical profiles native to the **Strong Heart Study (SHS)**. 
 
-### Core Tech Stack
+### Core Features
 * **Language:** R
 * **Statistical Modeling:** `survival`, `timereg`, `mvtnorm`
 * **Data Engineering:** `data.table`, `tidyr`, `dplyr`
