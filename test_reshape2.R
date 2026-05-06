@@ -1,1 +1,0 @@
-data <- data.frame(id_unique=1:2, M_1=1:2, M_2=3:4, time.since.first.exam_1=5:6, time.since.first.exam_2=7:8); m <- c('M_1','M_2'); time_points <- c('1','2'); vector_time_points <- c(m[1], time_points[1], m[2], time_points[2]); reshape(data, direction='long', varying=vector_time_points, sep='_', times=c('1','2'), idvar='id_unique')
