@@ -4,7 +4,7 @@
 #' Implements the g-formula approach for mediation analysis with
 #' time-varying mediators and competing risks on the hazard scale.
 #'
-#' @param D List of models for time-varying covariates/competing risks (can be NULL for none).
+#' @param dreg List of models for time-varying covariates/competing risks (can be NULL for none).
 #' @param mreg List of models for time-varying mediators.
 #' @param mvar Character vector of mediator variable names in time order.
 #' @param yreg Outcome model object containing `call`, `gamma`, and `robvar.gamma`.
@@ -29,9 +29,9 @@
 #' # Example usage requires fitted models and appropriate data.
 #' # See the package vignette for a full example.
 # Main function to conduct mediation analysis in presence of time-varying mediators, a survival outcome and competing risks in difference in hazards scale
-cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, astar = 1, data, time_points, peryr = 100000, nboot = 200, refit = FALSE, yreg_time = NULL, yreg_event = NULL) {
+cmest_pathcomprisk <- function(dreg = NULL, mreg, mvar, yreg, avar = "E", a = 0, astar = 1, data, time_points, peryr = 100000, nboot = 200, refit = FALSE, yreg_time = NULL, yreg_event = NULL) {
   N <- dim(data)[1]
-  NL <- length(D)
+  NL <- length(dreg)
   NM <- length(mreg)
 
   boot_res <- foreach(
@@ -45,7 +45,7 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
     data_boot$id_boot <- 1:N
 
     mreg_boot <- mreg
-    D_boot <- D
+    dreg_boot <- dreg
     yreg_boot <- yreg
 
     if (refit) {
@@ -56,7 +56,7 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
       # Refit dropout
       if (NL > 0) {
         for (k in 1:NL) {
-          D_boot[[k]] <- stats::update(D[[k]], data = data_boot)
+          dreg_boot[[k]] <- stats::update(dreg[[k]], data = data_boot)
         }
       }
       # Refit outcome (Aalen)
@@ -86,7 +86,7 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
 
     YModel <- mvtnorm::rmvnorm(1, mean = yreg_boot$gamma, sigma = yreg_boot$robvar.gamma)
 
-    PredictL_a <- PredictL_astar <- PredictL_astar_a <- matrix(NA, nrow = N, ncol = NL)
+    PredictD_a <- PredictD_astar <- PredictD_astar_a <- matrix(NA, nrow = N, ncol = NL)
     PredictM_a <- PredictM_astar <- PredictM_a_astar <- matrix(NA, nrow = N, ncol = NM)
 
     # Predict M1
@@ -102,15 +102,15 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
 
     # Predict L1 (D1)
     if (NL > 0) {
-      pred.data.astar.l1 <- pred.data.a.l1 <- pred.data.astar.a.l1 <- model.frame(D_boot[[1]])
+      pred.data.astar.l1 <- pred.data.a.l1 <- pred.data.astar.a.l1 <- model.frame(dreg_boot[[1]])
       pred.data.astar.l1[, avar] <- pred.data.astar.a.l1[, avar] <- astar
       pred.data.a.l1[, avar] <- a
       pred.data.astar.l1[, mvar[1]] <- PredictM_astar[, 1]
       pred.data.a.l1[, mvar[1]] <- pred.data.astar.a.l1[, mvar[1]] <- PredictM_a[, 1]
 
-      PredictL_astar_a[, 1] <- rbinom(N, size = 1, prob = predict(D_boot[[1]], pred.data.astar.a.l1, type = "response"))
-      PredictL_a[, 1] <- rbinom(N, size = 1, prob = predict(D_boot[[1]], pred.data.a.l1, type = "response"))
-      PredictL_astar[, 1] <- rbinom(N, size = 1, prob = predict(D_boot[[1]], pred.data.astar.l1, type = "response"))
+      PredictD_astar_a[, 1] <- rbinom(N, size = 1, prob = predict(dreg_boot[[1]], pred.data.astar.a.l1, type = "response"))
+      PredictD_a[, 1] <- rbinom(N, size = 1, prob = predict(dreg_boot[[1]], pred.data.a.l1, type = "response"))
+      PredictD_astar[, 1] <- rbinom(N, size = 1, prob = predict(dreg_boot[[1]], pred.data.astar.l1, type = "response"))
     }
 
     # Predict Li (only if more than one time point)
@@ -132,13 +132,13 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
         }
 
         if (NL > 1) {
-          m1mat.a.m <- model.matrix(~., data = pred.data.a.m[which(PredictL_a[, i - 1] == 0), ])
-          m1mat.astar.m <- model.matrix(~., data = pred.data.astar.m[which(PredictL_astar[, i - 1] == 0), ])
-          m1mat.a.astar.m <- model.matrix(~., data = pred.data.a.astar.m[which(PredictL_astar_a[, i - 1] == 0), ])
+          m1mat.a.m <- model.matrix(~., data = pred.data.a.m[which(PredictD_a[, i - 1] == 0), ])
+          m1mat.astar.m <- model.matrix(~., data = pred.data.astar.m[which(PredictD_astar[, i - 1] == 0), ])
+          m1mat.a.astar.m <- model.matrix(~., data = pred.data.a.astar.m[which(PredictD_astar_a[, i - 1] == 0), ])
 
-          PredictM_a[which(PredictL_a[, i - 1] == 0), i] <- tcrossprod(MModel[[i]], m1mat.a.m)
-          PredictM_astar[which(PredictL_astar[, i - 1] == 0), i] <- tcrossprod(MModel[[i]], m1mat.astar.m)
-          PredictM_a_astar[which(PredictL_astar_a[, i - 1] == 0), i] <- tcrossprod(MModel[[i]], m1mat.a.astar.m)
+          PredictM_a[which(PredictD_a[, i - 1] == 0), i] <- tcrossprod(MModel[[i]], m1mat.a.m)
+          PredictM_astar[which(PredictD_astar[, i - 1] == 0), i] <- tcrossprod(MModel[[i]], m1mat.astar.m)
+          PredictM_a_astar[which(PredictD_astar_a[, i - 1] == 0), i] <- tcrossprod(MModel[[i]], m1mat.a.astar.m)
         } else {
           m1mat.a.m <- model.matrix(~., data = pred.data.a.m)
           m1mat.astar.m <- model.matrix(~., data = pred.data.astar.m)
@@ -150,11 +150,11 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
         }
 
         if (NL > 1 & i <= NL) {
-          pred.data.a.l <- pred.data.astar.l <- pred.data.astar.a.l <- as.data.frame(matrix(nrow = N, ncol = (dim(model.frame(D_boot[[i]]))[2] - 1)))
-          colnames(pred.data.a.l) <- colnames(pred.data.astar.l) <- colnames(pred.data.astar.a.l) <- attr(terms(D_boot[[i]]), "term.labels")
-          names <- colnames(pred.data.a.l)[which(colnames(pred.data.a.l) %in% attr(terms(D_boot[[1]]), "term.labels"))]
+          pred.data.a.l <- pred.data.astar.l <- pred.data.astar.a.l <- as.data.frame(matrix(nrow = N, ncol = (dim(model.frame(dreg_boot[[i]]))[2] - 1)))
+          colnames(pred.data.a.l) <- colnames(pred.data.astar.l) <- colnames(pred.data.astar.a.l) <- attr(terms(dreg_boot[[i]]), "term.labels")
+          names <- colnames(pred.data.a.l)[which(colnames(pred.data.a.l) %in% attr(terms(dreg_boot[[1]]), "term.labels"))]
 
-          pred.data.a.l[, names] <- pred.data.astar.a.l[, names] <- pred.data.astar.l[, names] <- model.frame(D_boot[[1]])[, names]
+          pred.data.a.l[, names] <- pred.data.astar.a.l[, names] <- pred.data.astar.l[, names] <- model.frame(dreg_boot[[1]])[, names]
           pred.data.a.l[, avar] <- a
           pred.data.astar.l[, avar] <- pred.data.astar.a.l[, avar] <- astar
 
@@ -162,9 +162,9 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
           pred.data.astar.l[, mvar[i]] <- PredictM_astar[, i]
           pred.data.astar.a.l[, mvar[i]] <- PredictM_a_astar[, i]
 
-          PredictL_a[which(PredictL_a[, i - 1] == 0), i] <- rbinom(length(which(PredictL_a[, i - 1] == 0)), size = 1, prob = predict(D_boot[[i]], pred.data.a.l[which(PredictL_a[, i - 1] == 0), ], type = "response"))
-          PredictL_astar[which(PredictL_astar[, i - 1] == 0), i] <- rbinom(length(which(PredictL_astar[, i - 1] == 0)), size = 1, prob = predict(D_boot[[i]], pred.data.astar.l[which(PredictL_astar[, i - 1] == 0), ], type = "response"))
-          PredictL_astar_a[which(PredictL_astar_a[, i - 1] == 0), i] <- rbinom(length(which(PredictL_astar_a[, i - 1] == 0)), size = 1, prob = predict(D_boot[[i]], pred.data.astar.a.l[which(PredictL_astar_a[, i - 1] == 0), ], type = "response"))
+          PredictD_a[which(PredictD_a[, i - 1] == 0), i] <- rbinom(length(which(PredictD_a[, i - 1] == 0)), size = 1, prob = predict(dreg_boot[[i]], pred.data.a.l[which(PredictD_a[, i - 1] == 0), ], type = "response"))
+          PredictD_astar[which(PredictD_astar[, i - 1] == 0), i] <- rbinom(length(which(PredictD_astar[, i - 1] == 0)), size = 1, prob = predict(dreg_boot[[i]], pred.data.astar.l[which(PredictD_astar[, i - 1] == 0), ], type = "response"))
+          PredictD_astar_a[which(PredictD_astar_a[, i - 1] == 0), i] <- rbinom(length(which(PredictD_astar_a[, i - 1] == 0)), size = 1, prob = predict(dreg_boot[[i]], pred.data.astar.a.l[which(PredictD_astar_a[, i - 1] == 0), ], type = "response"))
         }
       }
     }
@@ -172,10 +172,10 @@ cmest_pathcomprisk <- function(D = NULL, mreg, mvar, yreg, avar = "E", a = 0, as
 
     # Predict Y
     # Data augmentation method for person-time database
-    # PredictY_DEIEM: a*, D1_a, M1_aD1a, D2_aD1aM1aD1a, M2_aD1aM1aD2a
-    # PredictY_TEDE_2: a, D1_a, M1_aD1a, D2_aD1a M1aD1a, M2_aD1aM1aD2a
-    # PredictY_IEMIED: a*, D1_a, M1_a*D1a, D2_aD1a M1a*D1a, M2_a*D1aM1a*D2a
-    # PredictY_IEDTE_1: a*, D1_a*, M1_a*D1a*, D2_a*D1a*M1a*D1a*, M2_a*D1a*M1a*D2a*
+    # PredictY_DEIEM: a*, dreg1_a, M1_adreg1a, dreg2_adreg1aM1adreg1a, M2_adreg1aM1adreg2a
+    # PredictY_TEDE_2: a, dreg1_a, M1_adreg1a, dreg2_adreg1a M1adreg1a, M2_adreg1aM1adreg2a
+    # PredictY_IEMIED: a*, dreg1_a, M1_a*dreg1a, dreg2_adreg1a M1a*dreg1a, M2_a*dreg1aM1a*dreg2a
+    # PredictY_IEDTE_1: a*, dreg1_a*, M1_a*dreg1a*, dreg2_a*dreg1a*M1a*dreg1a*, M2_a*dreg1a*M1a*dreg2a*
 
     pred.data.a.y <- pred.data.astar.y <- pred.data.astar.a.y <- pred.data.astar.a.astar.a.y <- data_boot[, c("id_boot", getvarnames(yreg_boot$call)$xvar[-2], mvar, colnames(data_boot)[grep("time.since.first.exam", colnames(data_boot))])]
     pred.data.a.y[, avar] <- a

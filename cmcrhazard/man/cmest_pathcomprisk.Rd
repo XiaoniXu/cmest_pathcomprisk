@@ -5,7 +5,7 @@
 \title{Causal mediation with time-varying mediators, hazard scale, and competing risks}
 \usage{
 cmest_pathcomprisk(
-  D = NULL,
+  dreg = NULL,
   mreg,
   mvar,
   yreg,
@@ -22,7 +22,7 @@ cmest_pathcomprisk(
 )
 }
 \arguments{
-\item{D}{List of models for time-varying covariates/competing risks (can be NULL for none).}
+\item{dreg}{List of models for time-varying covariates/competing risks (can be NULL for none).}
 
 \item{mreg}{List of models for time-varying mediators.}
 

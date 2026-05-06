@@ -69,13 +69,21 @@ The table below compares the results from the full 100,000 observations analysis
 2. _Magnitude Shift_: The _Direct Effect_ and _Total Effect_ estimates are significantly more pronounced in the full 100k dataset. This suggests that the smaller _N=500_ subset may have underestimated the effect sizes or that the bootstrap variability at small sample sizes was higher.
 3. _Stability_: The 100k results provide the most reliable point estimates for the underlying simulation parameters, now that the ID ordering bug has been resolved.
 
-## Production Run Details
+## Production Run Details (N=7,500)
 
-The production run on the _N=7,500_ subset with _1,000_ bootstrap iterations has also been completed:
-- DE: 94.43 (76.24, 105.68)
-- TE: 97.98 (22.98, 174.94)
+The production run on the _N=7,500_ subset with _1,000_ bootstrap iterations was performed using the _Exact Match_ mode. 
 
-The results are highly consistent with the 100k ground truth, confirming that the package is now robust and ready for real-world application.
+| Effect | Estimate (95% CI) | Significance |
+| :--- | :--- | :--- |
+| Direct Effect (DE) | 94.43 (-26.04, 207.87) | No |
+| Indirect Effect (IEM) | 2.17 (-90.97, 103.15) | No |
+| Competing Risk (IED) | -0.23 (-0.79, 0.31) | No |
+| Total Effect (TE) | 97.98 (22.98, 174.94) | Yes (p < 0.05) |
+
+### Statistical Significance Analysis
+1. _Total Effect (TE)_: The total impact of the treatment is statistically significant. The confidence interval (22.98, 174.94) remains strictly positive, confirming a robust relationship.
+2. _Path-Specific Effects_: In this _N=7,500_ sample, the individual paths (DE, IEM, IED) include zero in their intervals. This suggests that while an overall effect is certain, the specific mechanism (mediation vs direct) requires the higher power of the full dataset to reach definitive significance.
+3. _Full Data Contrast_: When looking at the full 100k dataset (ground truth), all effects (DE, IEM, IED, TE) narrow significantly and demonstrate statistical significance, with TE reaching 116.57 (111.97, 121.17).
 
 ## Model Definitions (Refit Mode)
 
