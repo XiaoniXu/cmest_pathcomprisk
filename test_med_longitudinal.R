@@ -89,7 +89,7 @@ astar <- as.numeric(quantile(df_main$E, 0.75, na.rm = TRUE))
 
 start_time <- Sys.time()
 
-results <- cmest_pathcomprisk(
+results <- pathcomprisk(
     dreg = dreg,
     mreg = mreg,
     mvar = c("M_1", "M_2"),

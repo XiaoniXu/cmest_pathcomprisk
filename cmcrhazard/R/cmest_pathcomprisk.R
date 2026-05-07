@@ -29,7 +29,7 @@
 #' # Example usage requires fitted models and appropriate data.
 #' # See the package vignette for a full example.
 # Main function to conduct mediation analysis in presence of time-varying mediators, a survival outcome and competing risks in difference in hazards scale
-cmest_pathcomprisk <- function(dreg = NULL, mreg, mvar, yreg, avar = "E", a = 0, astar = 1, data, time_points, peryr = 100000, nboot = 200, refit = FALSE, yreg_time = NULL, yreg_event = NULL) {
+pathcomprisk <- function(dreg = NULL, mreg, mvar, yreg, avar = "E", a = 0, astar = 1, data, time_points, peryr = 100000, nboot = 200, refit = FALSE, yreg_time = NULL, yreg_event = NULL) {
   N <- dim(data)[1]
   NL <- length(dreg)
   NM <- length(mreg)
@@ -280,4 +280,10 @@ cmest_pathcomprisk <- function(dreg = NULL, mreg, mvar, yreg, avar = "E", a = 0,
 
   res <- list(DE = DE_result, IEM = IEM_result, IED = IED_result, TE = TE_result, Q = Q_result)
   return(res)
+}
+
+#' @export
+cmest_pathcomprisk <- function(...) {
+  .Deprecated("pathcomprisk")
+  pathcomprisk(...)
 }
